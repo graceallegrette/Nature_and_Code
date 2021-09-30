@@ -1,184 +1,44 @@
-//NAME:    Created by Grace Allegrette
-//CREDIT:  Pieces of code inspired from "https://editor.p5js.org/fauthereea/sketches
-//         /Nce8NkMVV"
-//DEFF:    This code creates an array of letters with varying colors falling from
-//         top of the screen. The user can press letters on their keyboard and
-//         watch the letter dissapear from the console. Eventually I want to turn
-//         this code into a game that ends if the user doesn't get rid of a letters
-//         before it reaches the bottom of the screen.
+// Grace Allegrette
+// Nature & Code
+// Center of Creative Computation | SMU
+// Fall, 2021
 
- words = [];
- wordFall = setInterval(createWord, 100);
- letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
-  'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+//Description: Took Professor Greenbergs code and modified the colors, lighting,
+//             and size of VerletNode's
+
+
+let bounds; // vector-+++++++++++
+let verletBox;
 
 function setup() {
-  createCanvas(1000, 1000);
-  textFont('Georgia', 30);
+    createCanvas(600, 600, WEBGL);
+    bounds = createVector(200, 300, 400);
+    verletBox = new VerletBox(createVector(0, 0, 0), 80, .001, color(random(255), random(255), random(255)));
+    verletBox.nudge(1, createVector(10.01, 25.02, 30.03));
+     verletBox.setStyles(3, color(random(255), random(255), random(255)), color(random(255), random(255), random(255)));
+
 }
 
 function draw() {
-  background(255);
-  var i;
+    background(255, 255, 255);
 
-  //Plays and moves letters
-  for (i = words.length -1; i > 0; i--) {
-    words[i].display();
-    words[i].move();
+    ambientLight(255);
+    directionalLight(255, 1, 1, 0.50, 0.50, 0);
+//    pointLight(0, 0, 255, mouseX, mouseY, 250);
 
-  }
+    rotateX(frameCount*PI/365);
+    rotateY(frameCount*PI/365);
+    drawBounds();
 
-  //sees if you press the key of a letter on console
-  if ((keyIsPressed == true) && (key == 'a')) {
-    text('a', 150, 200);
-  }
-
-  else if ((keyIsPressed == true) && (key == 'b')) {
-    text('b', 175, 200);
-  }
-
-  else if ((keyIsPressed == true) && (key == 'c')) {
-    text('c', 200, 200);
-  }
-
-  else if ((keyIsPressed == true) && (key == 'd')) {
-    text('d', 225, 200);
-  }
-
-  else if ((keyIsPressed == true) && (key == 'e')) {
-    text('d', 250, 200);
-  }
-
-  else if ((keyIsPressed == true) && (key == 'f')) {
-    text('e', 275, 200);
-  }
-
-  else if ((keyIsPressed == true) && (key == 'g')) {
-    text('g', 300, 200);
-  }
-
-  else if ((keyIsPressed == true) && (key == 'h')) {
-    text('h', 325, 200);
-
-  }
-
-  else if ((keyIsPressed == true) && (key == 'i')) {
-    text('i', 350, 200);
-  }
-
-  else if ((keyIsPressed == true) && (key == 'j')) {
-    text('j', 375, 200);
-  }
-
-  else if ((keyIsPressed == true) && (key == 'k')) {
-    text('k', 400, 200);
-  }
-
-  else if ((keyIsPressed == true) && (key == 'l')) {
-    text('l', 425, 200);
-  }
-
-  else if ((keyIsPressed == true) && (key == 'm')) {
-    text('m', 450, 200);
-  }
-
-  else if ((keyIsPressed == true) && (key == 'n')) {
-    text('n', 475, 200);
-  }
-
-  else if ((keyIsPressed == true) && (key == 'o')) {
-    text('o', 500, 200);
-  }
-
-  else if ((keyIsPressed == true) && (key == 'p')) {
-    text('p', 525, 200);
-  }
-
-  else if ((keyIsPressed == true) && (key == 'q')) {
-    text('q', 550, 200);
-  }
-
-  else if ((keyIsPressed == true) && (key == 'r')) {
-    text('r', 575, 200);
-  }
-
-  else if ((keyIsPressed == true) && (key == 's')) {
-    text('s', 600, 200);
-  }
-
-  else if ((keyIsPressed == true) && (key == 't')) {
-    text('t', 625, 200);
-  }
-
-  else if ((keyIsPressed == true) && (key == 'u')) {
-    text('u', 650, 200);
-  }
-
-  else if ((keyIsPressed == true) && (key == 'v')) {
-    text('v', 675, 200);
-  }
-
-  else if ((keyIsPressed == true) && (key == 'w')) {
-    text('w', 700, 200);
-  }
-
-  else if ((keyIsPressed == true) && (key == 'x')) {
-    text('x', 725, 200);
-  }
-
-  else if ((keyIsPressed == true) && (key == 'y')) {
-    text('y', 750, 200);
-  }
-
-  else if ((keyIsPressed == true) && (key == 'z')) {
-    text('z', 775, 200);
-  }
+   // specularMaterial(250);
+    verletBox.verlet();
+    verletBox.draw();
+    verletBox.boundsCollide(bounds);
 }
 
-function createWord() {
-  words.push(new Word());
-}
-
-class Word {
-  constructor() {
-    this.lhs = random(width);
-    this.speed1 = 2;
-    this.speed2 = 2;
-    this.randLetter = random(letters);
-    this.color = color(random(255),random(255),random(255));
-  }
-
-  //letter speed
-  move() {
-    this.speed1 = this.speed1 + this.speed2;
-  }
-
-  //creates letters color and sizes
-  display() {
-    text(this.randLetter, this.lhs, this.speed1);
-    fill(this.color);
-  }
-
-  CheckScreen() {
-   if (this.speed1 > height) {
-     return true
-  } else {
-    return false
-  }
- }
-}
-
-//functions
-//sees if key is pressed
-function keyPressed() {
-  DeleteOffScreen(key);
-}
-
-function DeleteOffScreen(delLetter) {
-  for (i = 0; i < words.length; i++) {
-    if (words[i].randLetter == delLetter) {
-      print(words[i].randLetter);
-      words.splice(i, 1); //gets rid of word on screen
-    }
-  }
+// NOTE: Needs to be a cube
+function drawBounds() {
+    noFill();
+    stroke(155, 75, 55, 5);
+    box(bounds.x, bounds.y, bounds.z)
 }
