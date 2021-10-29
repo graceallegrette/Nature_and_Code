@@ -1,184 +1,169 @@
-//NAME:    Created by Grace Allegrette
-//CREDIT:  Pieces of code inspired from "https://editor.p5js.org/fauthereea/sketches
-//         /Nce8NkMVV"
-//DEFF:    This code creates an array of letters with varying colors falling from
-//         top of the screen. The user can press letters on their keyboard and
-//         watch the letter dissapear from the console. Eventually I want to turn
-//         this code into a game that ends if the user doesn't get rid of a letters
-//         before it reaches the bottom of the screen.
+/* Name:        Grace Allegrette
+   Description: Verlet Nodes connect to create a square that drops from the top
+                of the screen. Lines show following the boxes path.
+   Credit:      Parts of this code are inspired by:
+                https://github.com/bit101/codingmath*/
 
- words = [];
- wordFall = setInterval(createWord, 100);
- letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
-  'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+window.onload = function() {
+	var canvas = document.getElementById("canvas");
+  var context = canvas.getContext("2d");
+  var width = canvas.width = window.innerWidth;
+  var height = canvas.height = window.innerHeight;
 
-function setup() {
-  createCanvas(1000, 1000);
-  textFont('Georgia', 30);
-}
 
-function draw() {
-  background(255);
-  var i;
+	var dots = [];
+  var sticks = [];
+  var gravity = 0.7;
+  var friction = 0.999;
+  var color;
 
-  //Plays and moves letters
-  for (i = words.length -1; i > 0; i--) {
-    words[i].display();
-    words[i].move();
+//boxOne
+  dots.push({
+		beginx: 100,
+		beginy: 100,
+		oldx: 100 + Math.random() * 30 - 15,
+		oldy: 100 + Math.random() * 30 - 15
+	});
+	dots.push({
+		beginx: 200,
+		beginy: 100,
+		oldx: 200,
+		oldy: 100
+	});
+	dots.push({
+		beginx: 200,
+		beginy: 200,
+		oldx: 200,
+		oldy: 200
+	});
+	dots.push({
+		beginx: 100,
+		beginy: 200,
+		oldx: 100,
+		oldy: 200
+	});
 
-  }
 
-  //sees if you press the key of a letter on console
-  if ((keyIsPressed == true) && (key == 'a')) {
-    text('a', 150, 200);
-  }
+	sticks.push({
+		position0: dots[0],
+		position1: dots[1],
+		length: movement(dots[0], dots[1])
+	});
+	sticks.push({
+		position0: dots[1],
+		position1: dots[2],
+		length: movement(dots[1], dots[2])
+	});
+	sticks.push({
+		position0: dots[2],
+		position1: dots[3],
+		length: movement(dots[2], dots[3])
+	});
+	sticks.push({
+		position0: dots[3],
+		position1: dots[0],
+		length: movement(dots[3], dots[0])
+	});
 
-  else if ((keyIsPressed == true) && (key == 'b')) {
-    text('b', 175, 200);
-  }
 
-  else if ((keyIsPressed == true) && (key == 'c')) {
-    text('c', 200, 200);
-  }
+	update();
 
-  else if ((keyIsPressed == true) && (key == 'd')) {
-    text('d', 225, 200);
-  }
+	function movement(position0, position1) {
+    var distancex = position0.beginx - position1.beginx;
+    distancex *= distancex;
+    var distancey = position0.beginy - position1.beginy;
+    distancey *= distancey;
+    return Math.sqrt(distancex + distancey);
+	}
 
-  else if ((keyIsPressed == true) && (key == 'e')) {
-    text('d', 250, 200);
-  }
+	function update() {
+		MoveDots();
+		constraints();
+		updateSticks();
+		UpdateDots();
+		UpdateSticks();
+		requestAnimationFrame(update);
+	}
 
-  else if ((keyIsPressed == true) && (key == 'f')) {
-    text('e', 275, 200);
-  }
+	function MoveDots() {
+		for(var i = 0; i < dots.length; i++) {
+			var position = dots[i];
 
-  else if ((keyIsPressed == true) && (key == 'g')) {
-    text('g', 300, 200);
-  }
+			var updatex = position.beginx - position.oldx;
+      updatex = updatex * friction;
 
-  else if ((keyIsPressed == true) && (key == 'h')) {
-    text('h', 325, 200);
+			var updatey = position.beginy - position.oldy
+      updatey = updatey * friction;
 
-  }
+			position.oldx = position.beginx;
+			position.oldy = position.beginy;
 
-  else if ((keyIsPressed == true) && (key == 'i')) {
-    text('i', 350, 200);
-  }
+			position.beginx = position.beginx + updatex;
+			position.beginy = position.beginy + updatey + gravity;
+		}
+	}
 
-  else if ((keyIsPressed == true) && (key == 'j')) {
-    text('j', 375, 200);
-  }
 
-  else if ((keyIsPressed == true) && (key == 'k')) {
-    text('k', 400, 200);
-  }
+	function constraints() {
+		for(var i = 0; i < dots.length; i++) {
+			var position = dots[i];
 
-  else if ((keyIsPressed == true) && (key == 'l')) {
-    text('l', 425, 200);
-  }
+			var updatex = position.beginx - position.oldx;
+      updatex = updatex * friction;
 
-  else if ((keyIsPressed == true) && (key == 'm')) {
-    text('m', 450, 200);
-  }
+			var updatey = position.beginy - position.oldy;
+      updatey = updatey * friction;
 
-  else if ((keyIsPressed == true) && (key == 'n')) {
-    text('n', 475, 200);
-  }
+			if(position.beginx > width) {
+				position.beginx = width;
+			}
+			else if(position.beginx < 0) {
+				position.beginx = 0;
+				position.oldx = position.beginx + updatex;
+			}
+			if(position.beginy > height) {
+				position.beginy = height;
+				position.oldy = position.beginy + updatey;
+			}
+			else if(position.beginy < 0) {
+				position.beginy = 0;
+			}
+		}
+	}
 
-  else if ((keyIsPressed == true) && (key == 'o')) {
-    text('o', 500, 200);
-  }
+	function updateSticks() {
+		for(var i = 0; i < sticks.length; i++) {
 
-  else if ((keyIsPressed == true) && (key == 'p')) {
-    text('p', 525, 200);
-  }
+    	var placeHolder = sticks[i];
+			var distancex = placeHolder.position1.beginx - placeHolder.position0.beginx;
+			var distancey = placeHolder.position1.beginy - placeHolder.position0.beginy;
+			var movement = Math.sqrt(distancex * distancex + distancey * distancey);
+			var difference = placeHolder.length - movement;
+			var percent = difference / movement / 3;
+			var offsetX = distancex * percent * 0.88;
+			var offsetY = distancey * percent * 0.88;
 
-  else if ((keyIsPressed == true) && (key == 'q')) {
-    text('q', 550, 200);
-  }
+			placeHolder.position0.beginx =placeHolder.position0.beginx - offsetX;
+      placeHolder.position1.beginx =placeHolder.position1.beginx + offsetX;
+			placeHolder.position0.beginy =placeHolder.position0.beginy - offsetY;
+			placeHolder.position1.beginy =placeHolder.position1.beginy + offsetY;
+		}
+	}
 
-  else if ((keyIsPressed == true) && (key == 'r')) {
-    text('r', 575, 200);
-  }
+	function UpdateDots() {
+		context.rect(2, 2, width, height);
+		for(var i = 0; i < dots.length; i++) {
+			context.beginPath();
+		}
+	}
 
-  else if ((keyIsPressed == true) && (key == 's')) {
-    text('s', 600, 200);
-  }
-
-  else if ((keyIsPressed == true) && (key == 't')) {
-    text('t', 625, 200);
-  }
-
-  else if ((keyIsPressed == true) && (key == 'u')) {
-    text('u', 650, 200);
-  }
-
-  else if ((keyIsPressed == true) && (key == 'v')) {
-    text('v', 675, 200);
-  }
-
-  else if ((keyIsPressed == true) && (key == 'w')) {
-    text('w', 700, 200);
-  }
-
-  else if ((keyIsPressed == true) && (key == 'x')) {
-    text('x', 725, 200);
-  }
-
-  else if ((keyIsPressed == true) && (key == 'y')) {
-    text('y', 750, 200);
-  }
-
-  else if ((keyIsPressed == true) && (key == 'z')) {
-    text('z', 775, 200);
-  }
-}
-
-function createWord() {
-  words.push(new Word());
-}
-
-class Word {
-  constructor() {
-    this.lhs = random(width);
-    this.speed1 = 2;
-    this.speed2 = 2;
-    this.randLetter = random(letters);
-    this.color = color(random(255),random(255),random(255));
-  }
-
-  //letter speed
-  move() {
-    this.speed1 = this.speed1 + this.speed2;
-  }
-
-  //creates letters color and sizes
-  display() {
-    text(this.randLetter, this.lhs, this.speed1);
-    fill(this.color);
-  }
-
-  CheckScreen() {
-   if (this.speed1 > height) {
-     return true
-  } else {
-    return false
-  }
- }
-}
-
-//functions
-//sees if key is pressed
-function keyPressed() {
-  DeleteOffScreen(key);
-}
-
-function DeleteOffScreen(delLetter) {
-  for (i = 0; i < words.length; i++) {
-    if (words[i].randLetter == delLetter) {
-      print(words[i].randLetter);
-      words.splice(i, 1); //gets rid of word on screen
-    }
-  }
-}
+	function UpdateSticks() {
+		context.beginPath();
+		for(var i = 0; i < sticks.length; i++) {
+			var placeHolder = sticks[i];
+			context.moveTo(placeHolder.position0.beginx, placeHolder.position0.beginy);
+			context.lineTo(placeHolder.position1.beginx, placeHolder.position1.beginy);
+		}
+		context.stroke();
+	}
+};
